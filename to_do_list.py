@@ -4,94 +4,112 @@ root_width = 300
 root_height = 450
 tasks = []
 
-#Colors
 yellow = "#ffce52"
+light_yellow = "#fffd78"
 
-#Window setup
 root = ctk.CTk()
 root.title("To Do List")
+root.resizable(False, False)
 root.geometry(f"{root_width}x{root_height}")
 ctk.set_appearance_mode("dark")
 
-landing_frame = ctk.CTkFrame(master=root,  width=root_width, height=root_height, fg_color="#0ba7f5")
-landing_frame.pack()
+landing_frame = ctk.CTkFrame(root, fg_color=light_yellow)
+add_task_frame = ctk.CTkFrame(root, fg_color=light_yellow)
+delete_task_frame = ctk.CTkFrame(root, fg_color=light_yellow)
 
-delete_task_frame = ctk.CTkFrame(master=landing_frame, width=root_width, height=root_height, fg_color="#0ba7f5")
-delete_task_frame.pack()
+task_container = ctk.CTkFrame(landing_frame, fg_color="transparent")
+task_container.pack(fill="both", padx=20, pady=10, expand=True)
 
-add_task_frame = ctk.CTkFrame(master=landing_frame,  width=root_width, height=root_height, fg_color="#ffdb9e")
-add_task_frame.pack()
+def show_frame(frame):
+    landing_frame.pack_forget()
+    add_task_frame.pack_forget()
+    delete_task_frame.pack_forget()
+    frame.pack(fill="both", expand=True)
+
+def refresh_task_list():
+    for widget in task_container.winfo_children():
+        widget.destroy()
+
+    if not tasks:
+        lbl = ctk.CTkLabel(task_container, text="No tasks yet", font=("Helvetica", 18, "bold"), text_color="#242424")
+        lbl.place(x=80, y= 100)
+    else:
+        for task in tasks:
+            lbl = ctk.CTkLabel(task_container, text=task, font=("Helvetica", 18, "bold"), text_color="#242424",
+                               justify="left")
+            lbl.pack(fill="both", pady=2)
+            
 
 def landing_screen():
+    show_frame(landing_frame)
 
-    add_task_btn = ctk.CTkButton(master=landing_frame, text="Add Task", width=120, height=40, 
-                                        font=("Helvetica", 17, "bold"), fg_color=yellow,
-                                        text_color="#242424", hover_color="#d8aa37",
-                                        corner_radius=12, command=add_task, anchor="top")
-    add_task_btn.pack(padx=7, pady=7)
+    for widget in landing_frame.winfo_children():
+        if widget not in (task_container,):
+            widget.destroy()
 
-    delete_task_btn = ctk.CTkButton(master=landing_frame, text="Clear Tasks", width=120, height=40, 
-                                        font=("Helvetica", 17, "bold"), fg_color="#f7377a",
-                                        text_color="#242424", hover_color="#da2867",
-                                        corner_radius=12, command=delete_task, anchor="center")
-    delete_task_btn.pack(padx=7, pady=7)
+    add_task_btn = ctk.CTkButton(landing_frame, text="Add Task", width=80, height=45,
+                  font=("Helvetica", 17, "bold"), fg_color=yellow, text_color="#242424",
+                  hover_color="#d8aa37", corner_radius=12, command=add_task_screen)
 
-    for i in tasks:
-        if i == 0:
-            display_task = ctk.CTkLabel(master=landing_frame, text="No tasks Yet", 
-                                        font=("Helvetica", 18, "bold"))
-            display_task.pack()
-        else:
-            display_task.pack = ctk.CTkLabel(master=landing_frame, text=tasks, 
-                                        font=("Helvetica", 18, "bold"))
-            display_task.pack()
+    add_task_btn.grid(row=0, column=0, padx=5, pady=5)
 
-def add_task():
-    landing_frame.destroy()
-    while True:
-        task_label = ctk.CTkLabel(master=add_task_frame, text="Enter a Task: ", font=("Helvetica", 18, "bold"),
-                            text_color=yellow)
-        task_label.pack(padx=20, pady=20)
+    delete_task_btn = ctk.CTkButton(landing_frame, text="Clear Tasks", width=50, height=45,
+                  font=("Helvetica", 17, "bold"), fg_color="#f7377a", text_color="#242424",
+                  hover_color="#da2867", corner_radius=12, command=delete_task_screen)
 
-        task_input = ctk.CTkTextbox(master=add_task_frame, width=120, height=40, font=("Helvetica", 20, "bold"))
-        task_input.pack(padx=20, pady=17)
+    refresh_task_list()
+    
+def add_task_screen():
+    show_frame(add_task_frame)
 
-        def get_text_content():
-            task_content = task_input.get("1.0", ctk.END).strip()
+    for widget in add_task_frame.winfo_children():
+        widget.destroy()
+
+    ctk.CTkLabel(add_task_frame, text="Enter a Task:", font=("Helvetica", 20, "bold"),
+                 text_color="#2c2c2c").pack(pady=20)
+
+    task_input = ctk.CTkTextbox(master=add_task_frame, width=120, height=40, font=("Helvetica", 20, "bold"),
+                                fg_color="#363636")
+    task_input.pack(padx=20, pady=12)
+
+    def save_task():
+        task_content = task_input.get("1.0", "end").strip()
+        if task_content:
             tasks.append(task_content)
-            print(tasks)
+        landing_screen()
 
-        submit_task_btn = ctk.CTkButton(master=add_task_frame, text="Add Task", width=120, height=40, 
-                                        font=("Helvetica", 17, "bold"), fg_color=yellow,
-                                        text_color="#242424", hover_color="#d8aa37",
-                                        corner_radius=12, command=get_text_content)
-        submit_task_btn.pack(padx=20, pady=17)
-        break
+    submit_task_btn = ctk.CTkButton(add_task_frame, text="Add Task", width=120, height=40, 
+                                    font=("Helvetica", 18, "bold"), fg_color=yellow,
+                                    text_color="#242424", hover_color="#d8aa37",
+                                    corner_radius=12, command=save_task).pack(pady=17)
 
-def delete_task():
+    cancel_btn = ctk.CTkButton(add_task_frame, text="Cancel", width=120, height=40, 
+                                    font=("Helvetica", 18, "bold"), fg_color="#313131",
+                                    text_color="#D0D0D0", hover_color="#272727",
+                                    corner_radius=12, command=landing_screen).pack(pady=17)
 
-    landing_frame.destroy()
+def delete_task_screen():
+    show_frame(delete_task_frame)
+
+    for widget in add_task_frame.winfo_children():
+        widget.destroy()
+
+    ctk.CTkLabel(delete_task_frame, text=f"You have {len(tasks)} task(s)",
+                 font=("Helvetica", 18, "bold"), text_color="#242424").pack(pady=30)
 
     def clear_tasks():
         tasks.clear()
+        landing_screen()
 
     delete_task_btn = ctk.CTkButton(master=delete_task_frame, text="Clear Tasks", width=120, height=40, 
-                                        font=("Helvetica", 17, "bold"), fg_color="#f7377a",
-                                        text_color="#242424", hover_color="#da2867",
-                                        corner_radius=12, command=clear_tasks)
-    delete_task_btn.pack()
+                                    font=("Helvetica", 17, "bold"), fg_color="#f7377a",
+                                    text_color="#242424", hover_color="#da2867",
+                                    corner_radius=12, command=clear_tasks).pack(pady=20)
 
+    cancel_btn = ctk.CTkButton(add_task_frame, text="Cancel", width=120, height=40, 
+                               font=("Helvetica", 18, "bold"), fg_color="#313131",
+                               text_color="#D0D0D0", hover_color="#272727",
+                               corner_radius=12, command=landing_screen).pack(pady=17)
 
-    for task in tasks:
-        if task == "":
-            display_task = ctk.CTkLabel(master=delete_task_frame, text="No tasks Yet", 
-                                        font=("Helvetica", 18, "bold"))
-            display_task.pack()
-        else:
-            display_task.pack = ctk.CTkLabel(master=delete_task_frame, text=tasks, 
-                                        font=("Helvetica", 18, "bold"))
-            display_task.pack()
-
-add_task()
-
+landing_screen()
 root.mainloop()
