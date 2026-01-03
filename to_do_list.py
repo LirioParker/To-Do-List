@@ -51,11 +51,13 @@ def landing_screen():
                   font=("Helvetica", 17, "bold"), fg_color=yellow, text_color="#242424",
                   hover_color="#d8aa37", corner_radius=12, command=add_task_screen)
 
-    add_task_btn.grid(row=0, column=0, padx=5, pady=5)
+    add_task_btn.pack(padx=5, pady=5)
 
     delete_task_btn = ctk.CTkButton(landing_frame, text="Clear Tasks", width=50, height=45,
                   font=("Helvetica", 17, "bold"), fg_color="#f7377a", text_color="#242424",
                   hover_color="#da2867", corner_radius=12, command=delete_task_screen)
+
+    delete_task_btn.pack(padx=1, pady=5)
 
     refresh_task_list()
     
